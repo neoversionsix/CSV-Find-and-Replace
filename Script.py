@@ -56,7 +56,7 @@ print(dict_Subs)
 #endregion
 
 # Read Data
-df_data = pd.read_csv(filename, sep=Delimiter, index_col=False, engine='python', dtype={'SAMPLEPOINT': object})
+df_data = pd.read_csv(filename, sep=Delimiter, index_col=False, engine='python', dtype=str)
 
 # Delete Rows with everything missing in the row
 df_data = df_data.dropna(axis='index', how='all')
