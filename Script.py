@@ -13,17 +13,17 @@ print('Libs Imported')
 # INPUT VARIABLES----------------------------------------------------------------------------------------
 #region
 # Directory folder of the csv files you want to process
-filename = 'C:/FILES/data.csv'
+filename = 'C:/temp/data.csv'
 # Can change to xlsx if needed, other changes will be nessesary to code
 Extension = 'csv'
 # Csv files seperator for input and output files..generally (,) or (|)
 Delimiter = ','
 
 # Column to apply the Replacements to
-# Replace 'SAMPLEPOINT' with the name of the column you want to replace on line 65 AND 59
+ColName = 'COLUMN_NAME'
 
 # Directory file of Lookup Table
-Input_path_Lookup = 'C:/FILES/lookup-table.csv'
+Input_path_Lookup = 'C:/temp/lookuptable.csv'
 
 # Output folder of the Processed CSV file
 Output_path_processed_csv = 'C:/FILES/'
@@ -61,8 +61,14 @@ df_data = pd.read_csv(filename, sep=Delimiter, index_col=False, engine='python',
 # Delete Rows with everything missing in the row
 df_data = df_data.dropna(axis='index', how='all')
 
+# Swap the name of the column to rename
+df.rename(columns={ColName: 'coltoswapxy'}, inplace=True)
+
 # Make the replacements
-df_data.SAMPLEPOINT.replace(dict_Subs , inplace = True)
+df_data.coltoswap.replace(dict_Subs , inplace = True)
+
+# Swap back the name of the column to rename
+df.rename(columns={'coltoswapxy': ColName}, inplace=True)
 
 print(df_data.head())
 
