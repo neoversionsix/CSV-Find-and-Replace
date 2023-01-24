@@ -51,12 +51,14 @@ print(df_lookup)
 df_lookup.drop_duplicates(subset=['FIND'], keep='first', inplace=True)
 print('after dropdup')
 
-#Concatenate ".00"
+'''
+#Concatenate ".00" to a column
 # Define the string to concatenate
 string_to_concatenate = ".00"
 # Concatenate the string to column 'FIND'
 df_lookup['FIND'] = df_lookup['FIND'].apply(lambda x: str(x) + string_to_concatenate)
 
+'''
 dict_Subs = dict(zip(df_lookup['FIND'], df_lookup['REPLACE']))
 
 print('')
