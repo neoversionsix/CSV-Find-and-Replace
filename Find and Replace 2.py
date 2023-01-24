@@ -1,3 +1,9 @@
+'''
+This will find and replace based on a lookup table
+'''
+
+
+
 # IMPORTING LIBRARIES -----------------------------------------------------------------------------------
 #region
 import pandas as pd
@@ -6,10 +12,8 @@ print('Libs Imported')
 
 # INPUT VARIABLES----------------------------------------------------------------------------------------
 #region
-# Directory folder of the csv files you want to process
+# Directory file you want to process
 filename = 'C:/DATA.xlsx'
-# Can change to xlsx if needed, other changes will be nessesary to code
-Extension = 'xlsx'
 
 # Column to apply the Replacements to
 ColName = 'DIST_NAME'
@@ -17,10 +21,13 @@ ColName = 'DIST_NAME'
 # Directory file of Lookup Table
 Input_path_Lookup = 'C:/lookuptable.xlsx'
 
+#Do you want to replace the subset of a cell? If false it will match on whole cell
+replace_subset=True
+
 # Output folder of the Processed CSV file
 Output_path_processed = 'C:/'
 
-new_filename = 'DATA-PROCESSED.xlsx'
+new_filename = 'DATA-PROCESSED-2.xlsx'
 
 print('Directories loaded...')
 print('doing stuff now...')
@@ -30,36 +37,46 @@ print('')
 # READ AND PROCESS THE LOOKUP TABLE----------------------------------------------------------------
 #region
 df_lookup = pd.read_excel(Input_path_Lookup, dtype=str)
+print('lookup dataframe')
+print(df_lookup)
+
+
 
 # Delete Rows with everything missing in the row
 df_lookup = df_lookup.dropna(axis='index', how='all')
+print('after dropna')
+print(df_lookup)
 
-# Delete non Unique (duplicate) FIND rows
-df_lookup.drop_duplicates(subset='FIND', keep=False, inplace=True)
+# Delete non Unique (duplicate) FIND rows keep the first
+df_lookup.drop_duplicates(subset=['FIND'], keep='first', inplace=True)
+print('after dropdup')
 
-# Create a list of Unique Find items
-List_Subs = df_lookup['FIND'].tolist()
+#Concatenate ".00"
+# Define the string to concatenate
+string_to_concatenate = ".00"
+# Concatenate the string to column 'FIND'
+df_lookup['FIND'] = df_lookup['FIND'].apply(lambda x: str(x) + string_to_concatenate)
 
-# Change index to FIND
-df_lookup.set_index('FIND', inplace = True)
+dict_Subs = dict(zip(df_lookup['FIND'], df_lookup['REPLACE']))
 
-dict_Subs = df_lookup.to_dict()
-dict_Subs = dict_Subs.get('REPLACE')
-
-print('SUBSTITUTIONS...')
-print(dict_Subs)
 print('')
 print('Reading Data...')
 print('')
 #endregion
 
+
+
 # Read Data
 df_data = pd.read_excel(filename, dtype=str)
+print('data read')
 
 # Delete Rows with everything missing in the row
 #df_data = df_data.dropna(axis='index', how='all')
 
 # Swap the name of the column to rename
+print('')
+print('Swapping...')
+print('')
 df_data.rename(columns={ColName: 'coltoswap'}, inplace=True)
 
 # Make the replacements
@@ -67,10 +84,11 @@ df_data.rename(columns={ColName: 'coltoswap'}, inplace=True)
 #df_data.coltoswap.replace(dict_Subs , inplace = True)
 
 # Line Below finds and replaces subsets of cells
-df_data['coltoswap'] = df_data['coltoswap'].apply(lambda x: ''.join([dict_Subs.get(i, i) for i in x]))
+df_data['coltoswap'] = df_data['coltoswap'].replace(dict_Subs, regex=replace_subset)
 
 # Swap back the name of the column to rename
 df_data.rename(columns={'coltoswap': ColName}, inplace=True)
+print('swapped')
 
 print('NEW DATA PREVIEW')
 print(df_data.head())
